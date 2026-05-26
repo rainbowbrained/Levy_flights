@@ -23,7 +23,13 @@ independent, and any subregion has the same statistical
 properties.  The mean nearest-neighbor distance is
 $\langle d_{\mathrm{nn}} \rangle = 1/(2\sqrt{\rho})$.
 
-\subsection{L\'evy flight}
+\subsection{L\'evy walk: step-length distribution}
+
+As established in Section~\ref{sec:flights_vs_walks}, the simulation
+implements a \emph{L\'evy walk}: the searcher moves at constant unit
+speed, so a flight of length~$\ell$ takes time~$\ell$.
+Following the convention stated there, we use ``flight'' as shorthand
+for a constant-speed relocation throughout.
 
 \paragraph{Notation.}
 In the preceding chapters, the tail exponent was denoted $\alpha\in(0,2)$,
@@ -464,3 +470,57 @@ The model overestimates efficiency for $\mu > 2.5$
 (Section~\ref{sec:analytical_comparison}), where the
 penalty for oversampling by very short flights exceeds the
 $N(\mu)$ correction.
+
+%-------------------------------------------------------------
+\section{Reproducibility}
+\label{sec:reproducibility}
+
+All source code, raw data, plotting scripts, and build instructions
+are archived in a public repository:
+\begin{center}
+\url{https://github.com/rainbowbrained/Levy_flights}
+\end{center}
+
+\paragraph{Software environment.}
+Simulations were compiled and executed in the following environment:
+\begin{itemize}
+  \item \textbf{Compiler:} gcc (Ubuntu 11.4.0-1ubuntu1\textasciitilde 22.04) 11.4.0,
+        flags \texttt{-std=c99 -O2 -lm}.
+  \item \textbf{Operating system:} Ubuntu 22.04 LTS,
+        Linux kernel 6.9.3, x86\_64.
+  \item \textbf{Plotting:} Python~3.10.12 with
+        Matplotlib~3.10.1, NumPy~1.26.4, Pandas~2.2.3.
+\end{itemize}
+
+\paragraph{Random seeds.}
+The default master seed is~42 (command-line parameter
+\texttt{-{}-seed}).  For each $(\mu, r)$ pair, a per-run seed
+is derived deterministically:
+\texttt{seed = master\_seed $\oplus$ (mu\_index $\ll$ 32) $\oplus$ run\_index}.
+The chunk-level Poisson target field is seeded from the
+per-run world seed and chunk coordinates via a bijective
+hash, so the same master seed reproduces identical target
+fields regardless of traversal order.
+
+\paragraph{Regenerating results.}
+The repository contains:
+\begin{itemize}
+  \item \texttt{simulation/} --- C99 source files for all four strategies;
+  \item \texttt{scripts/} --- shell scripts (\texttt{run\_mega\_*.sh}) that
+        reproduce the full experiment grid and
+        \texttt{plot\_full\_study.py} that regenerates all figures;
+  \item \texttt{data/} --- raw CSV output (phase diagrams, sensitivity,
+        convergence, MFPT);
+  \item \texttt{figures/} --- all generated plots in PNG and PDF;
+  \item \texttt{thesis/} and \texttt{slides/} --- \LaTeX{} sources.
+\end{itemize}
+To reproduce the complete study from source:
+\begin{verbatim}
+cd simulation
+gcc -O2 -o levy_viswanathan levy_viswanathan.c -lm
+cd ../scripts
+bash run_mega_experiments.sh   # phase diagrams
+bash run_mega_sensitivity.sh   # truncation sweeps
+bash run_mega_convergence.sh   # convergence studies
+python3 plot_full_study.py --mega  # all figures
+\end{verbatim}
