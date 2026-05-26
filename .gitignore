@@ -1,0 +1,32 @@
+# Compiled binaries
+simulation/levy
+simulation/levy_batch_infinite_v2
+*.o
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+texput.log
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+.claude/
+
+# Temporary files
+*.zip

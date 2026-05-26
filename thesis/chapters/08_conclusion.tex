@@ -1,0 +1,300 @@
+% ============================================================
+%  Chapter 6 — Discussion and Conclusion
+% ============================================================
+\chapter{Discussion and conclusion}
+\label{ch:discussion}
+
+%-------------------------------------------------------------
+\section{Summary of results}
+
+\begin{table}[htb]
+\centering
+\small
+\begin{tabular}{llccl}
+\toprule
+Strategy & $\lambda/r_v$ & $\mu^*$ range & $\lambda\eta_{\max}$ range & Key feature \\
+\midrule
+No interrupt          & 10--2000 & 1.1--2.0 & 0.36--0.51 & $\mu^* \to 1$ at high $\rho$ \\
+Teleport ($l_c=5r_v$) & 10--2000 & 1.0--2.0 & 0.32--0.51 & $\mu^* \to 1$ at high $\rho$ \\
+Visw.\ destructive    & 10--2000 & 1.0--1.9 & 0.38--0.51 & $\mu^* \to 1$ at high $\rho$ \\
+Visw.\ non-destr.     & 10--2000 & 1.9--2.6 & 0.01--0.51 & trapping at low $\lambda/r_v$ \\
+\bottomrule
+\end{tabular}
+\caption{Summary of phase-diagram results across all strategies.
+         The $\mu^*$ range for destructive Viswanathan tops out
+         at~1.9 rather than~2.0 due to finite truncation
+         ($l_{\max} = \lambda$) and $\mu$-grid resolution
+         ($\Delta\mu = 0.1$); see text for discussion.}
+\label{tab:summary}
+\end{table}
+
+%-------------------------------------------------------------
+\section{Convergence to $\mu^* = 2$ in the sparse limit}
+
+The central result of Viswanathan et~al.~\cite{viswanathan1999optimizing}
+is that the optimal L\'evy exponent in sparse random fields is
+$\mu_{\mathrm{opt}} = 2$ (equivalently, $\alpha_{\mathrm{opt}} = 1$
+in the tail-exponent convention of the preceding chapters).
+Our simulations confirm this prediction: at
+$\lambda/r_v = 1000$--$2000$, all four strategies yield
+$\mu^* = 1.8$--$2.0$ (Table~\ref{tab:mu_star_values}).
+
+The convergence can be understood through the Viswanathan
+mean-field model $\eta \propto 1/(\langle l \rangle_{\mathrm{MF}}
+\cdot N)$ (Section~\ref{sec:analytical_theory}).  For the
+truncated power law~\eqref{eq:levy_pdf} on
+$[l_{\min}, l_{\max}]$:
+\begin{itemize}
+  \item For $\mu < 2$: $\langle l \rangle_{\mathrm{MF}}$ grows
+        as $R^{2-\mu}$, so $\eta$ decreases toward the ballistic
+        limit.
+  \item For $\mu > 2$: $\langle l \rangle_{\mathrm{MF}}$
+        saturates near~$r_v$, but the encounter
+        factor $N = (\lambda/r_v)^{(\mu-1)/2}$ grows,
+        penalizing short-flight strategies for trajectory
+        self-intersection.
+\end{itemize}
+The product $\langle l \rangle_{\mathrm{MF}} \cdot N$ is
+minimized near $\mu = 2$, where the balance between
+long-range relocation and local scanning is optimal.
+
+The resolution of $\mu^*$ to $\Delta\mu = 0.1$ means that
+$\mu^* = 1.8$ and $\mu^* = 2.0$ are within two grid steps.
+The remaining offset from the theoretical $\mu = 2$ arises from
+two sources: (i) the finite $\mu$-grid ($\Delta\mu = 0.1$),
+and (ii) the use of $l_{\max} = \lambda$ (finite truncation),
+which slightly shifts the optimum toward lower $\mu$.
+A finer grid ($\Delta\mu = 0.05$, destructive Viswanathan,
+$\lambda/r_v = 1000$, $R = 120$) yields $\mu^* = 1.95$,
+consistent with the theoretical $\mu^* = 2$ within
+discretization uncertainty.
+
+%-------------------------------------------------------------
+\section{Density-dependent optimum}
+
+A key finding of this study is the systematic quantification
+of the shift of $\mu^*$ toward the ballistic limit
+($\mu^* \to 1$) at high target density ($\lambda/r_v \leq 20$).
+While the weakening of L\'evy optimality at high density has been
+noted qualitatively~\cite{bartumeus2005animal}, the present work
+maps it quantitatively across two orders of magnitude in
+$\lambda/r_v$.  The shift occurs for all strategies except
+non-destructive Viswanathan.
+
+\paragraph{Physical interpretation.}
+When the mean free path $\lambda$ is comparable to the vision
+radius ($\lambda/r_v = 10$ means $\lambda = 5$, $r_v = 0.5$),
+the forager encounters a target within a few flight lengths
+regardless of~$\mu$.  In this regime, the optimal strategy is
+ballistic ($\mu \to 1$) because:
+\begin{enumerate}
+  \item When $l_{\max} = \lambda$ is comparable to
+        $l_{\min} = r_v$, the truncated power law
+        on $[l_{\min}, l_{\max}]$ becomes nearly uniform
+        regardless of~$\mu$, so all exponents give similar
+        flight lengths and the efficiency curve is nearly flat.
+  \item Within that flat curve, $\mu \to 1$ distributes flights
+        more evenly across $[l_{\min}, l_{\max}]$, whereas
+        $\mu \gg 2$ concentrates nearly all flights near
+        $l_{\min}$, increasing local oversampling.
+  \item The resulting preference for $\mu^* \to 1$ is a weak
+        effect: at $\lambda/r_v = 10$, the efficiency varies
+        by less than $10\%$ across $\mu \in [1, 3]$
+        (Figure~\ref{fig:eta_curves}).
+\end{enumerate}
+
+This transition from L\'evy-optimal ($\mu^* \approx 2$) to
+ballistic-optimal ($\mu^* \to 1$) as density increases is
+consistent with the analytical framework:  when
+$l_{\max} = \lambda$ is small (comparable to $l_{\min} = r_v$),
+the truncated power law~\eqref{eq:levy_pdf} becomes nearly
+uniform on a narrow interval, and the $\mu$-dependence weakens.
+
+\paragraph{Crossover region.}
+The crossover occurs at $\lambda/r_v \approx 50$--$200$, where
+$\mu^*$ transitions from~$1.0$--$1.4$ to~$1.8$--$2.0$.
+The exact crossover point depends on the strategy.
+
+%-------------------------------------------------------------
+\section{Trapping in non-destructive search}
+
+Non-destructive Viswanathan search exhibits pathological
+behavior at high density: the ``trapping'' effect where the
+forager ping-pongs between nearby targets.
+
+\paragraph{Mechanism.}
+When the forager detects a target and restarts a flight from
+that target's position, the next flight may be short
+(with probability determined by $\mu$ and $l_{\min}$).  If
+there is another target within $\sim l_{\min}$ of the current
+one, the forager immediately detects it and restarts again.
+This creates a cycle between a pair (or small cluster) of
+targets.
+
+\paragraph{Quantitative trapping.}
+At $\lambda/r_v = 10$, $\mu = 2.0$: the trapping ratio is
+$V/U \approx 1716$ (Table~\ref{tab:trapping_ratios}).  This
+means each unique target is visited ${\sim}1700$ times on average.  The effective efficiency is suppressed by a
+factor of~${\sim}1700$ compared to the destructive case.
+
+\paragraph{Effect on $\mu^*$.}
+Trapping preferentially penalizes low~$\mu$ (which produces
+more short flights), shifting the apparent $\mu^*$ upward.
+At $\lambda/r_v = 10$, $\mu^* = 2.2$, which is \emph{not}
+a genuine optimum but an artifact: increasing $\mu$ reduces
+trapping intensity, and the balance between trapping
+suppression and scanning efficiency produces a spurious maximum
+above~$\mu = 2$.
+
+At $\lambda/r_v \geq 500$, trapping ratios drop to $V/U < 2$,
+and the non-destructive $\mu^*$ converges to the same value as
+the destructive case.
+
+%-------------------------------------------------------------
+\section{Strategy equivalence in the sparse limit}
+
+At $\lambda/r_v = 2000$, all four strategies yield
+$\lambda\eta_{\max} = 0.508$--$0.512$ and $\mu^* = 1.8$--$2.0$.
+The differences are within statistical uncertainty
+($\Delta\lambda\eta_{\max} < 1\%$).
+
+This is expected: when the mean free path $\lambda$ greatly
+exceeds the flight lengths and vision radius, the probability
+of encountering multiple targets within a single flight is
+negligible.  The post-detection strategy only affects what
+happens \emph{at} the target, but the next target is so far
+away that the starting point (current position, teleported
+position, or target position) makes no difference.
+
+The dimensionless efficiency $\lambda\eta_{\max} \approx 0.51$
+represents the observed asymptotic maximum of detection
+efficiency for L\'evy flights in 2D Poisson fields within the
+tested parameter range.  Because $\lambda = 1/(2\rho r_v)$ is the
+mean distance to detection for a straight-line scan through a fresh
+Poisson field, the theoretical upper bound for a memoryless random
+searcher is $\lambda\eta = 1$.  The observed value of~$0.51$
+reflects the overhead of directional randomness and occasional
+overshooting.
+
+%-------------------------------------------------------------
+\section{MFPT vs.\ throughput optima}
+
+The MFPT minimum and throughput maximum do not coincide
+exactly.  At $\lambda/r_v = 100$ (destructive Viswanathan),
+the MFPT minimum occurs at $\mu \approx 1.5$, while
+the throughput peak is at $\mu^* \approx 1.7$.  The MFPT
+optimum is shifted toward more ballistic values because the
+first detection favors long straight flights that cross fresh
+territory quickly, whereas long-run throughput additionally
+benefits from efficient local scanning after the first target.
+
+Systematic MFPT analysis across all sparsity levels was conducted
+only for the destructive Viswanathan strategy; a cross-strategy
+comparison at $\lambda/r_v = 100$
+(Figure~\ref{fig:mfpt_comparison}) confirms that the
+MFPT--throughput gap is not strategy-specific.
+A full MFPT phase diagram is left for future work.
+
+%-------------------------------------------------------------
+\section{Truncation effects}
+
+The choice of truncation bounds $l_{\min}$ and $l_{\max}$
+affects both $\mu^*$ and $\lambda\eta_{\max}$
+(Section~\ref{sec:sensitivity}).
+
+\paragraph{$l_{\max}$ dependence.}
+For $l_{\max}/\lambda \geq 1$: $\mu^*$ and $\lambda\eta_{\max}$
+are insensitive to $l_{\max}$.  The additional probability mass
+at $l > \lambda$ does not affect the optimum because such long
+flights are rare and their detection contribution is negligible
+compared to the large distance traveled.
+
+For $l_{\max}/\lambda < 0.5$: $\mu^*$ shifts to $1.0$--$1.6$
+and $\lambda\eta_{\max}$ decreases by up to~$19\%$ (from
+$0.470$ to $0.382$).  The truncation effectively converts the
+L\'evy flight into a narrow-range walk, removing the
+superdiffusive component.
+
+\paragraph{$l_{\min}$ dependence.}
+Increasing $l_{\min}$ above $r_v$ removes short scanning
+flights.  For $l_{\min}/r_v \leq 2$: $\mu^*$ remains within
+$1.5$--$2.1$.  At $l_{\min}/r_v = 5$: $\mu^*$ shifts to~$2.2$
+and $\lambda\eta_{\max}$ decreases by~$3\%$, as the forager
+can no longer perform local scanning.
+
+\paragraph{Implications.}
+The standard choice $l_{\min} = r_v$, $l_{\max} = \lambda$ is
+close to optimal.  Small perturbations ($l_{\max}/\lambda
+\in [0.5, 10]$, $l_{\min}/r_v \in [0.5, 2]$) do not
+significantly affect the conclusions.
+
+%-------------------------------------------------------------
+\section{Convergence and statistical reliability}
+
+\subsection{Destructive search}
+
+The pooled estimator $\lambda\eta$ converges quickly:
+\begin{itemize}
+  \item $\mu^*$ is stable for $N_{\mathrm{flights}} \geq 5000$
+        and $R \geq 20$.
+  \item $\lambda\eta_{\max}$ converges within $0.5\%$ for
+        $R \geq 50$.
+\end{itemize}
+The production runs ($R = 100$--$120$,
+$N_{\mathrm{flights}} = 20\,000$--$150\,000$) are
+well-converged.
+
+\subsection{Non-destructive search}
+
+Due to trapping, per-run efficiency has a heavy-tailed
+distribution.  A single outlier run (where the forager
+escapes a trapping cluster early) can bias $\bar\eta$.
+The pooled estimator~\eqref{eq:eta} mitigates this, but
+$\mu^*$ still fluctuates by $\pm 0.5$ even at $R = 400$.
+
+The convergence of $\lambda\eta_{\max}$ (as opposed to
+$\mu^*$) is better: within $1\%$ at $R = 200$.  This
+suggests that while the exact peak position is noisy, the
+peak value is well-determined.
+
+Production non-destructive runs use $R = 300$--$360$,
+providing adequate convergence for $\lambda\eta_{\max}$ and
+approximate (within $\pm 0.3$) determination of $\mu^*$.
+
+%-------------------------------------------------------------
+\section{Comparison with previous work}
+
+The results of this study are broadly consistent with the existing literature while providing quantitative detail that was previously unavailable. The central prediction of Viswanathan et~al.~\cite{viswanathan1999optimizing}---that $\mu_{\mathrm{opt}} \approx 2$ for random search in sparse environments---is consistent with our regime map at $\lambda/r_v \geq 500$, where all four strategies yield $\mu^* = 1.8$--$2.0$. Our work extends this comparison to finite densities and multiple post-detection strategies within a single simulation framework. The qualitative observation by Bartumeus et~al.~\cite{bartumeus2005animal} that the L\'evy advantage weakens at high target density is quantified here: the crossover from L\'evy-optimal ($\mu^* \approx 2$) to ballistic-optimal ($\mu^* \to 1$) occurs at $\lambda/r_v \approx 50$--$200$, depending on the strategy (Figure~\ref{fig:phase_diagram}).
+
+The analytical comparison with the Viswanathan mean-field model $\eta \propto 1/(\langle l \rangle_{\mathrm{MF}} \cdot N)$ (Figure~\ref{fig:analytical_multi}) shows that this simple formula qualitatively captures the peak location and the shape of $\lambda\eta(\mu)$ for $\mu \leq 2$, with agreement improving at higher $\lambda/r_v$. The scaling critique of Levernier et~al.~\cite{levernier2020inverse}---that in $d \geq 2$ the choice of~$\mu$ affects only prefactors rather than parametric scaling---is supported by our observation that even in the sparse limit, $\lambda\eta$ varies by only a factor of~${\sim}2$ across $\mu \in [1,3]$ (Figure~\ref{fig:eta_curves}). The Buldyrev et~al.~\cite{buldyrev2021comment} analysis of the non-destructive ``hide-and-seek'' limit with $l_c \to r_v$ predicted a sharper optimum near $\mu = 2$; our non-destructive Viswanathan results (with effective $l_c = 0$) instead show trapping pathology rather than a clean optimum, highlighting the extreme sensitivity of the non-destructive case to the precise restart mechanism.
+
+Our main contribution beyond these works is threefold: the systematic mapping of $\mu^*$ across two orders of magnitude in $\lambda/r_v$ within a single unified simulation framework, the quantification of trapping in non-destructive search (including the $V/U \sim 10^3$ revisit ratios at high density), and the quantitative characterization of the ballistic-to-L\'evy crossover as a function of target sparsity.
+
+%-------------------------------------------------------------
+\section{Limitations}
+
+Several limitations should be kept in mind when interpreting these results. The simulations are restricted to two spatial dimensions; in 3D the detection geometry changes (a cylindrical detection volume rather than a rectangular corridor), and while the Viswanathan framework predicts $\mu_{\mathrm{opt}} = 2$ independently of dimension, the quantitative crossover densities and efficiency values are likely to differ. The target field is a homogeneous Poisson process, which represents the simplest possible spatial distribution. Real environments typically exhibit clustered or patchy target distributions, which would modify the $\mu^*$ dependence in ways that depend on the cluster size relative to $\lambda$ and~$r_v$. The efficiency metric used here counts unique captures per unit distance and does not incorporate turning costs, metabolic energy expenditure, or time discounting---factors that would be relevant in biological foraging and could shift the optimal exponent away from ballistic values at high density. Finally, the $\mu$-grid step $\Delta\mu = 0.1$ limits the precision with which $\mu^*$ can be determined; however, because the efficiency curves near the peak are broad (especially at moderate and low sparsity), this resolution is sufficient for identifying the qualitative regimes and crossover behavior.
+
+%-------------------------------------------------------------
+\section{Conclusions}
+
+As a result of our work, we can draw the following conclusions.
+
+Within the tested truncated-power-law family, the estimated optimal exponent approaches $\mu^* \approx 2$ (equivalently $\alpha^* \approx 1$) in the sparsest tested regimes ($\lambda/r_v \geq 500$) for all four post-detection strategies. This is consistent with the central prediction of the L\'evy flight foraging hypothesis under the conditions where it was originally formulated. However, this optimality is not universal: at high target density ($\lambda/r_v \leq 20$), the optimal exponent shifts toward $\mu^* \to 1$ (ballistic motion) for all strategies except the non-destructive Viswanathan case. When targets are abundant, L\'evy flights provide no significant advantage over straight-line motion, and the efficiency curves become nearly flat across all $\mu \in [1,3]$. In the sparse limit ($\lambda/r_v \geq 2000$), all four strategies converge to the same efficiency $\lambda\eta_{\max} \approx 0.51$, demonstrating that the post-detection protocol becomes irrelevant when targets are sufficiently rare.
+
+The MFPT-optimal exponent ($\mu \approx 1.5$ at $\lambda/r_v = 100$) is shifted toward more ballistic values compared to the throughput optimum ($\mu^* \approx 1.7$), indicating that these two performance objectives select for different movement strategies. First detection favors longer straight flights that rapidly cross fresh territory, while long-run throughput benefits from a balance between exploration and local scanning.
+
+The standard truncation choice $l_{\min} = r_v$, $l_{\max} = \lambda$ is robust: the optimal exponent and peak efficiency are insensitive to moderate variations of these bounds ($l_{\max}/\lambda \in [0.5, 10]$, $l_{\min}/r_v \in [0.5, 2]$). Only severe truncation of the upper bound ($l_{\max}/\lambda < 0.5$) significantly affects the results, shifting $\mu^*$ toward ballistic values and reducing efficiency by up to~$19\%$. The Viswanathan mean-field model $\eta \propto 1/(\langle l \rangle_{\mathrm{MF}} \cdot N)$ qualitatively captures the location and shape of the efficiency peak for $\mu \leq 2$ at all tested densities, with agreement improving at higher sparsity.
+
+Non-destructive Viswanathan search suffers from pathological trapping at high density: each unique target is revisited ${\sim}10^3$ times at $\lambda/r_v = 10$. This trapping creates a spurious shift of $\mu^*$ above~$2$ and necessitates $R \geq 200$ independent runs with pooled metrics to achieve convergence within~$1\%$. The pooled unique-capture rate~\eqref{eq:eta} is the appropriate estimator for L\'evy flight efficiency; per-run averages are unreliable due to heavy-tailed fluctuations induced by the trapping mechanism.
+
+%-------------------------------------------------------------
+\section{Possible future directions}
+
+The present study naturally suggests several avenues for further investigation. A complete MFPT phase diagram across all sparsity levels and all four strategies would extend the dual-objective comparison begun here and clarify whether the throughput--MFPT gap ($\Delta\mu^* \approx 0.2$) persists or widens at extreme sparsity. Extending the simulation to three spatial dimensions would test whether the quantitative crossover densities and efficiency values change, even though the Viswanathan framework predicts $\mu_{\mathrm{opt}} = 2$ independently of dimension; the detection geometry in 3D (a cylinder rather than a corridor) introduces new scaling considerations that may shift the ballistic crossover point.
+
+Replacing the homogeneous Poisson target field with clustered or patchy distributions would test the robustness of the phase diagram against the spatial correlations that characterize real environments. In particular, it would be interesting to determine whether the ballistic shift at high density persists when targets are concentrated in patches separated by large empty regions---a scenario in which the effective sparsity experienced by the forager differs from the global density.
+
+The trapping pathology in non-destructive search could be systematically explored by varying the restart distance~$l_c$ from~$0$ (the present study) through $l_c = r_v$ to $l_c \gg r_v$, connecting the trapping regime documented here to the ``hide-and-seek'' limit analyzed by Buldyrev et~al.~\cite{buldyrev2021comment}. Such a study would map the full phase diagram in the $(l_c, \lambda/r_v)$ plane and identify the critical $l_c$ at which trapping ceases to dominate.
+
+Incorporating energy-aware metrics---such as turning costs, metabolic expenditure proportional to distance, or time discounting---would bring the model closer to biological foraging and could shift the optimum away from ballistic motion at high density, where straight-line trajectories are currently favored purely on geometric grounds. Finally, comparing the optimized L\'evy walk with reinforcement-learning agents trained on the same target fields~\cite{munozgil2023optimal,kaur2023adaptive,caraglio2024learning} would quantify how close the power-law family is to the true optimum, and would help determine whether the remaining ${\sim}49\%$ efficiency gap (between $\lambda\eta_{\max} \approx 0.51$ and the theoretical upper bound $\lambda\eta = 1$) can be closed by adaptive strategies with memory.

@@ -1,0 +1,196 @@
+\chapter{Problem statement}
+\label{ch:problem_statement}
+
+This chapter formalizes the search problem studied in this thesis, introduces the notation used throughout, and states the research goal in a precise form. The focus is on a minimal but fully specified two-dimensional model of random search with finite detection radius, in which the effect of the Lévy tail exponent $\alpha$ can be benchmarked under controlled assumptions.
+
+%-----------------------------------------------------------
+\section{Search domain, targets, and trajectory}
+The searcher operates in the Euclidean plane~$\mathbb{R}^2$.
+In principle, the domain may be bounded (a finite region~$\Omega$ with
+periodic or reflecting boundary conditions) or unbounded.  The
+implementation used in this thesis (Chapter~\ref{ch:methodology})
+adopts an effectively infinite plane realized via on-demand
+generation of square chunks, thereby avoiding the finite-size
+and boundary effects associated with periodic domains.
+
+Targets are distributed as a homogeneous Poisson point process
+with intensity~$\rho$ (targets per unit area).  The probability
+of finding exactly~$k$ targets in a region of area~$S$ is
+$P(k) = (\rho S)^k e^{-\rho S}/k!$.  The expected number of
+targets in any region is $\rho S$, and target positions are
+independent and uniformly distributed.
+
+A searcher moves at constant unit speed and produces a
+trajectory $x(t)\in\mathbb{R}^2$ for $t\ge 0$, so that
+distance and time are interchangeable.
+In simulations, each flight is decomposed into segments of
+length~$\Delta x$ (the scan resolution), and detections are
+checked at each segment.  The total search budget is specified
+as a number of flights~$N_{\mathrm{flights}}$; together with the
+exponent-dependent mean flight length, this determines the total
+distance traveled.
+
+\begin{Def}[Detection event]
+Fix a detection radius $r_v>0$. A target $y_i$ is detected at time $t$ if
+\begin{equation}
+    \|x(t)-y_i\|\le r_v .
+    \label{eq:detection_condition}
+\end{equation}
+\end{Def}
+
+We emphasize that the finite radius $r_v$ is essential in 2D: if targets were modeled as mathematical points and detections required exact hits, then a continuous trajectory would detect a target with probability zero. The model therefore treats targets as detectable discs of radius $r_v$ (or, equivalently, point targets with an observation radius~$r_v$).
+
+%-----------------------------------------------------------
+\section{Motion model: incremental relocations}
+Between detections, the searcher executes \emph{relocations}. Each relocation begins by sampling a direction and a relocation length. Let $\theta_k \sim \mathrm{Unif}(0,2\pi)$ be an independent heading angle, and let $\ell_k>0$ be the relocation length sampled from a parameterized family of heavy-tailed laws. The searcher then moves toward the point
+\begin{equation}
+    x_k^{\star} = x(t_k) + \ell_k \, (\cos\theta_k,\sin\theta_k),
+    \label{eq:relocation_target_point}
+\end{equation}
+but the motion is \emph{incremental}: the flight is decomposed into segments of length~$\Delta x$, and the detection condition~\eqref{eq:detection_condition} is checked along each segment.  Thus relocations can be \emph{interrupted} by detections before the planned length $\ell_k$ is completed.  (In subsequent chapters, we use ``flight'' as a synonym for ``relocation.'')
+
+\begin{Def}[Heavy-tailed L\'evy relocation family]
+Fix $\alpha\in(0,2)$. A relocation distribution is called L\'evy-type if it has a power-law tail
+\begin{equation}
+    \Pr(\ell > s)\sim C\, s^{-\alpha}\qquad \text{as } s\to\infty,
+    \label{eq:levy_tail}
+\end{equation}
+for some constant $C>0$. In practice, simulations use a truncated version on $[l_{\min}, l_{\max}]$ to ensure a finite mean flight length and well-defined sampling.
+\end{Def}
+
+For comparison baselines, the same incremental motion rule is used with alternative choices of relocation lengths:
+\begin{itemize}
+    \item \textbf{Brownian-like baseline:} short-tailed relocation lengths (e.g., exponential or Gaussian);
+    \item \textbf{Ballistic baseline:} very long relocations (effectively $\alpha\to 0$ or $\mu\to 1$ in power-law notation), producing long straight runs.
+\end{itemize}
+
+%-----------------------------------------------------------
+\section{Target interaction rules}
+The model distinguishes two interaction regimes.
+
+\begin{Def}[Destructive targets]
+In destructive search, each target can be detected at most once. After the first detection of $y_i$, the target is removed from the active set for the remainder of the simulation.
+\end{Def}
+
+\begin{Def}[Nondestructive targets with explicit post-hit rule]
+In nondestructive search, targets may be revisited. To avoid an ill-posed “stay forever” behavior, a post-hit departure mechanism is specified explicitly. Two common choices are:
+\begin{enumerate}
+    \item \textbf{Depletion/renewal time} $\tau \ge 0$: after a detection, the target is inactive for time $\tau$ and becomes detectable again afterwards.
+    \item \textbf{Jump-off distance} $l_c>0$: after a detection, the searcher is repositioned to a point at distance $l_c$ from the target (in a random direction), ensuring departure. It is convenient to use the dimensionless parameter
+    \begin{equation}
+        \varepsilon := \frac{l_c}{r_v}-1 .
+        \label{eq:epsilon_jumpoff}
+    \end{equation}
+\end{enumerate}
+\end{Def}
+
+These interaction rules are treated as first-class model parameters
+rather than hidden implementation details, because they can change
+qualitative conclusions about optimality.  In the implementation
+(Chapter~\ref{ch:methodology}), the teleport strategy uses
+$\varepsilon = 4$ ($l_c = 5\,r_v$), while the non-destructive
+Viswanathan restart corresponds to the singular limit
+$\varepsilon \to -1$ ($l_c \to 0$); in this limit, a minimal
+``just-visited'' flag prevents the forager from re-detecting
+the same target on the immediately following flight step
+(see Chapter~\ref{ch:methodology} for details).
+
+%-----------------------------------------------------------
+\section{Performance criteria}
+Let $\{t_j\}_{j\ge 1}$ be the (random) sequence of detection times during a run.
+
+\begin{Def}[Mean first-passage time (MFPT)]
+The mean first-passage time is the expected total distance
+traveled before the first detection (equivalent to time because
+the searcher moves at constant unit speed):
+\begin{equation}
+    \mathrm{MFPT} := \mathbb{E}[D_{\mathrm{first}}],
+    \label{eq:mfpt}
+\end{equation}
+where $D_{\mathrm{first}}$ is the path length from the start of a
+run to the first detection, and the expectation is taken over random
+relocations and target placements.  The acronym MFPT follows
+standard usage~\cite{viswanathan1999optimizing}.
+\end{Def}
+
+\begin{Def}[Unique-capture rate]
+Over $R$ independent runs, the \emph{pooled}
+unique-capture rate is defined as
+\begin{equation}
+    \eta := \frac{\sum_{r=1}^{R} N_{\mathrm{unique}}^{(r)}}
+                 {\sum_{r=1}^{R} D_{\mathrm{total}}^{(r)}},
+    \label{eq:eta_formal}
+\end{equation}
+where $N_{\mathrm{unique}}^{(r)}$ is the number of distinct
+targets found in run~$r$ and $D_{\mathrm{total}}^{(r)}$ is the
+total distance traveled.  This pooled estimator is preferred over
+the per-run mean because it is robust to heavy-tailed runs
+(see Chapter~\ref{ch:methodology}).  The dimensionless form is
+$\lambda\eta$, where $\lambda = 1/(2\rho r_v)$ is the mean free
+path.
+\end{Def}
+
+In addition to mean performance, robustness is quantified by the
+dispersion of outcomes across independent runs and by convergence
+studies with respect to the number of flights and runs.
+
+%-----------------------------------------------------------
+\section{Formal goal of the study}
+The study aims to build a transparent numerical benchmark and, within it, to identify which Lévy exponent is optimal across regimes.
+
+\begin{Def}[Parameter space]
+Let $\Theta$ denote the set of environmental, numerical, and
+interaction parameters:
+\begin{equation}
+    \Theta := \bigl\{\rho,\; r_v,\; l_{\min},\; l_{\max},\;
+    \Delta x,\; N_{\mathrm{flights}},\;
+    \mathrm{strategy}\bigr\}.
+    \label{eq:parameter_space}
+\end{equation}
+Here \emph{strategy} takes one of four values: no-interrupt,
+teleport, Viswanathan destructive, or Viswanathan non-destructive.
+The key dimensionless control parameter is the sparsity ratio
+$\lambda/r_v = 1/(2\rho r_v^2)$.  Note that the no-interrupt
+strategy is inherently destructive (each target is counted at
+most once).
+\end{Def}
+
+\begin{Def}[Objective-dependent optimal exponent]
+Fix a choice of objective $\mathcal{J}\in\{\mathrm{MFPT},\, \eta\}$
+and fix parameters $\theta\in\Theta$. The objective-dependent
+optimal exponent is
+\begin{equation}
+    \alpha^\star(\theta;\mathcal{J}) \in \arg\max_{\alpha\in(0,2)}
+    \, \mathcal{J}(\alpha;\theta),
+    \label{eq:alpha_star}
+\end{equation}
+where for MFPT the maximization is replaced by minimization.
+Equivalently, in the $\mu$-convention
+(Chapter~\ref{ch:methodology}), $\mu^* = \alpha^* + 1$.
+\end{Def}
+
+\paragraph{Overall purpose (formal statement).}
+For each regime $\theta\in\Theta$, the purpose of this thesis
+is to:
+\begin{enumerate}
+    \item implement a reproducible 2D simulator on an infinite
+          plane with Poisson-distributed targets and four
+          post-detection strategies;
+    \item estimate $\mathrm{MFPT}(\mu;\theta)$ and
+          $\lambda\eta(\mu;\theta)$ via Monte Carlo simulation;
+    \item determine $\mu^*(\theta;\mathcal{J})$ for both
+          objectives and assess convergence with respect to the
+          number of flights and runs;
+    \item map the dependence of $\mu^*$ on the sparsity ratio
+          $\lambda/r_v$ across two orders of magnitude and on the
+          truncation parameters $l_{\min}/r_v$ and
+          $l_{\max}/\lambda$.
+\end{enumerate}
+
+\paragraph{Problem statement (one sentence).}
+Given a two-dimensional random search model on an infinite Poisson
+target field with finite detection radius and explicit
+post-detection strategies, determine---by systematic Monte Carlo
+simulation---how the optimal L\'evy exponent $\mu^*$ depends on
+the sparsity ratio $\lambda/r_v$, the truncation parameters, and
+the choice of strategy.

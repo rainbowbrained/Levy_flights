@@ -1,0 +1,347 @@
+% ============================================================
+%  Chapter 5 — Numerical Experiments
+% ============================================================
+\chapter{Numerical experiments}
+\label{ch:experiments}
+
+All simulations are implemented in~C99 (gcc, \texttt{-std=c99 -O3}),
+single-threaded.
+Source files: \texttt{levy\_viswanathan.c} (Viswanathan
+destructive and non-destructive modes),
+\texttt{levy\_no\_interrupt.c} (no-interrupt mode), and
+\texttt{levy\_teleport.c} (teleport mode).
+Plotting: \texttt{plot\_full\_study.py} (Python~3 / Matplotlib).
+All lengths are measured in arbitrary units; we fix
+$r_v = 0.5$ and express all other lengths relative to this
+scale.  The source code will be archived in a public repository
+(with a persistent DOI) upon thesis defense; in the interim
+it is available from the author upon request.
+
+%-------------------------------------------------------------
+\section{Phase diagram: $\mu^*(\lambda/r_v)$}
+\label{sec:phase_diagram}
+
+\subsection{Experiment setup}
+
+We construct the phase diagram by sweeping
+$\lambda/r_v \in \{10, 20, 50, 100, 200, 500, 1000, 2000\}$.
+For each sparsity level, we run all four strategies with
+parameters given in Table~\ref{tab:phase_params}.
+
+\begin{table}[htb]
+\centering
+\begin{tabular}{rccc}
+\toprule
+$\lambda/r_v$ & $\rho$ & Flights & Runs (destr./non-destr.) \\
+\midrule
+   10 & $0.200$ &  20\,000 & 100 / 300 \\
+   20 & $0.100$ &  20\,000 & 100 / 300 \\
+   50 & $0.040$ &  30\,000 & 100 / 300 \\
+  100 & $0.020$ &  50\,000 & 120 / 360 \\
+  200 & $0.010$ &  60\,000 & 120 / 360 \\
+  500 & $0.004$ &  80\,000 & 120 / 360 \\
+ 1000 & $0.002$ & 100\,000 & 120 / 360 \\
+ 2000 & $0.001$ & 150\,000 & 120 / 360 \\
+\bottomrule
+\end{tabular}
+\caption{Phase diagram parameters.  The number of flights per
+         run grows with $\lambda/r_v$ to maintain
+         adequate convergence at sparse densities.
+         Non-destructive runs are $3\times$ the destructive
+         count.}
+\label{tab:phase_params}
+\end{table}
+
+\subsection{Results: optimal exponent $\mu^*$}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.88\textwidth]{images/phase_diagram_mu_star.pdf}
+\caption{Phase diagram of the optimal L\'evy exponent $\mu^*$ as a function of the sparsity parameter $\lambda/r_v$ for all four post-detection strategies. The blue curve with circles corresponds to the no-interrupt strategy, the orange curve with squares to the teleport strategy ($l_c = 5r_v$), the red curve with upward triangles to the Viswanathan destructive strategy, and the green curve with downward triangles to the Viswanathan non-destructive strategy. The grey dashed horizontal line marks the theoretical prediction $\mu = 2$. Shaded bands indicate the $\pm 1\sigma$ uncertainty region.}
+\label{fig:phase_diagram}
+\end{figure}
+
+Table~\ref{tab:mu_star_values} presents the numerical values.
+
+\begin{table}[htb]
+\centering
+\small
+\begin{tabular}{rcccc}
+\toprule
+$\lambda/r_v$ & No interrupt & Teleport & Visw.\ destr. & Visw.\ non-destr. \\
+\midrule
+   10 & 1.1 & 1.0 & 1.0 & 2.2 \\
+   20 & 1.4 & 1.4 & 1.2 & 2.6 \\
+   50 & 1.8 & 1.8 & 1.7 & 2.6 \\
+  100 & 1.9 & 1.9 & 1.7 & 2.5 \\
+  200 & 1.9 & 1.8 & 1.9 & 2.0 \\
+  500 & 2.0 & 1.9 & 1.8 & 1.9 \\
+ 1000 & 2.0 & 2.0 & 1.9 & 2.0 \\
+ 2000 & 2.0 & 2.0 & 1.8 & 2.0 \\
+\bottomrule
+\end{tabular}
+\caption{Optimal L\'evy exponent $\mu^*$ at each sparsity level.
+         Resolution: $\Delta\mu = 0.1$.  Convergence studies
+         (Section~\ref{sec:convergence}) show that $\mu^*$ is
+         stable to $\pm 0.1$--$0.2$ for destructive strategies
+         and $\pm 0.3$--$0.5$ for non-destructive Viswanathan.}
+\label{tab:mu_star_values}
+\end{table}
+
+At $\lambda/r_v \geq 500$, all strategies yield
+$\mu^* = 1.8$--$2.0$, approaching the theoretical prediction
+(the residual offset is within the grid resolution and truncation
+effects; see Section~\ref{sec:convergence}).
+At $\lambda/r_v = 10$--$20$, three strategies (No interrupt,
+Teleport, Visw.\ destructive) shift to $\mu^* \approx 1.0$--$1.4$
+(ballistic regime), while non-destructive Viswanathan shows
+$\mu^* \approx 2.2$--$2.6$ due to trapping bias.
+
+\subsection{Efficiency scaling}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.88\textwidth]{images/efficiency_scaling.pdf}
+\caption{Maximum dimensionless efficiency $\lambda\eta_{\max}$ as a function of target sparsity $\lambda/r_v$ for all four strategies. Colors and markers follow the same convention as Figure~\ref{fig:phase_diagram}. The three destructive strategies converge to a narrow band $\lambda\eta_{\max} \approx 0.36$--$0.51$ across the full sparsity range, while the non-destructive Viswanathan strategy (green, downward triangles) is severely penalized at low $\lambda/r_v$ by the trapping effect (see Section~\ref{sec:trapping}), reaching only $\lambda\eta_{\max} \approx 0.01$ at $\lambda/r_v = 10$.}
+\label{fig:efficiency_scaling}
+\end{figure}
+
+\begin{table}[htb]
+\centering
+\small
+\begin{tabular}{rcccc}
+\toprule
+$\lambda/r_v$ & No int. & Teleport & V.\ destr. & V.\ non-d. \\
+\midrule
+   10 & 0.364 & 0.323 & 0.384 & 0.010 \\
+   50 & 0.441 & 0.435 & 0.458 & 0.124 \\
+  100 & 0.454 & 0.458 & 0.470 & 0.222 \\
+  500 & 0.495 & 0.499 & 0.502 & 0.476 \\
+ 2000 & 0.508 & 0.512 & 0.511 & 0.509 \\
+\bottomrule
+\end{tabular}
+\caption{$\lambda\eta_{\max}$ at selected sparsity levels
+         (intermediate values $\lambda/r_v = 20,\,200,\,1000$
+         omitted for brevity; the full data are in
+         Figure~\ref{fig:efficiency_scaling}).
+         Values are converged to within $0.5\%$ for destructive
+         strategies and $1\%$ for non-destructive
+         (Section~\ref{sec:convergence}).}
+\label{tab:eta_max}
+\end{table}
+
+At $\lambda/r_v = 2000$, all four strategies converge to
+$\lambda\eta_{\max} \approx 0.51$: the post-detection protocol
+becomes irrelevant when targets are far apart.
+
+\subsection{Efficiency curves $\lambda\eta(\mu)$}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\textwidth]{images/eta_curves_by_sparsity.pdf}
+\caption{Dimensionless efficiency $\lambda\eta(\mu)$ at five sparsity levels, arranged from dense (top-left, $\lambda/r_v = 10$) to sparse (bottom-right, $\lambda/r_v = 2000$). Within each panel, the blue curve represents the no-interrupt strategy, the orange curve the teleport strategy, the red curve the Viswanathan destructive strategy, and the green curve the Viswanathan non-destructive strategy. Shaded bands show $\pm 1\sigma$ per-run standard deviation. At $\lambda/r_v = 10$ the curves are nearly flat (efficiency varies by less than $10\%$ across all~$\mu$), indicating that the choice of L\'evy exponent matters little when targets are abundant. At $\lambda/r_v = 2000$ a sharp peak emerges near $\mu \approx 2$ for all four strategies, confirming the L\'evy foraging hypothesis in the sparse limit.}
+\label{fig:eta_curves}
+\end{figure}
+
+The shape of the $\lambda\eta(\mu)$ curves can be understood through the interplay of two competing effects. For $\mu < 2$, the mean flight length $\langle l \rangle$ grows with decreasing~$\mu$ (longer flights), which increases the distance traveled per detection attempt; efficiency therefore declines toward the ballistic limit ($\mu \to 1$). The decline on the left side of the curves reflects the increasing cost of long flights that traverse mostly empty space. For $\mu > 2$, the mean flight length saturates near~$l_{\min}$ (the searcher executes predominantly short flights), but the encounter factor $N(\mu) \sim (\lambda/r_v)^{(\mu-1)/2}$ grows, because short-flight trajectories exhibit strong self-intersection: the searcher repeatedly scans previously visited areas rather than exploring new territory. The efficiency decline on the right side of the curves reflects this oversampling penalty. The peak near $\mu \approx 2$ represents the balance point where the searcher makes flights long enough to avoid local oversampling but not so long that each flight is wasted traversing target-free space.
+
+The second moment of the flight-length distribution, $\langle l^2 \rangle$, diverges for $\mu < 3$ in the untruncated case and is controlled by $l_{\max}$ in the truncated distribution used here. The transition at $\mu = 2$ is particularly significant because it separates the regime where $\langle l \rangle$ depends on $l_{\max}$ ($\mu < 2$, mean dominated by long flights) from the regime where $\langle l \rangle$ is determined by $l_{\min}$ ($\mu > 2$, mean dominated by short flights). This transition in the first moment, combined with the increasing oversampling penalty for $\mu > 2$, produces the cusp-like peak in the efficiency curves.
+
+%-------------------------------------------------------------
+\section{Trapping effect}
+\label{sec:trapping}
+
+In non-destructive Viswanathan mode, the forager restarts from
+the target position and can immediately re-encounter nearby
+targets.  This ``ping-pong'' trapping dominates at high density.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.88\textwidth]{images/trapping_heatmap.pdf}
+\caption{Heatmap of trapping intensity for the Viswanathan non-destructive strategy, showing the ratio $V/U$ (total visits divided by unique captures) as a function of $\mu$ (horizontal axis) and $\lambda/r_v$ (vertical axis). The color scale is logarithmic (yellow--orange--red from low to high trapping). At $\lambda/r_v = 10$ the trapping ratio exceeds $10^3$ for all~$\mu$, indicating that each unique target is revisited over a thousand times on average. At $\lambda/r_v \geq 500$ the ratio drops below~2, indicating negligible trapping.}
+\label{fig:trapping_heatmap}
+\end{figure}
+
+\begin{table}[htb]
+\centering
+\begin{tabular}{rcc}
+\toprule
+$\lambda/r_v$ & $V/U$ at $\mu=1.0$ & $V/U$ at $\mu=2.0$ \\
+\midrule
+   10 & 1540 & 1716 \\
+   50 &   43 &   53 \\
+  100 &   11 &   14 \\
+  500 &  1.6 &  2.0 \\
+ 2000 &  1.0 &  1.2 \\
+\bottomrule
+\end{tabular}
+\caption{Representative trapping ratios.  At $\lambda/r_v = 10$,
+         each unique target is revisited ${\sim}1500$ times.}
+\label{tab:trapping_ratios}
+\end{table}
+
+The trapping ratio decreases with $\lambda/r_v$ because
+the nearest-neighbor distance grows and short flights cannot
+reach neighboring targets.  At $\lambda/r_v \geq 500$,
+the trapping ratio approaches~1 (no revisits).
+
+%-------------------------------------------------------------
+\section{Mean first passage time}
+\label{sec:mfpt_results}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.88\textwidth]{images/mfpt_vs_mu.pdf}
+\caption{Normalized mean first-passage time $\mathrm{MFPT}/\lambda$ as a function of $\mu$ for the destructive Viswanathan strategy at five sparsity levels ($\lambda/r_v = 20, 50, 100, 500, 1000$; color-coded from dark to light using the viridis colormap). Each curve exhibits a minimum at $\mu \approx 1.3$--$1.7$, shifted toward ballistic values relative to the throughput-optimal $\mu^*$. The MFPT minimum is broader at low sparsity and sharpens as $\lambda/r_v$ increases.}
+\label{fig:mfpt_vs_mu}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.88\textwidth]{images/mfpt_comparison_lrv100.pdf}
+\caption{MFPT comparison across all four strategies at $\lambda/r_v = 100$. Colors and markers follow the convention of Figure~\ref{fig:phase_diagram}. Since MFPT measures only the distance to the \emph{first} detection from a fresh start, post-detection rules do not affect it; the four strategies produce statistically consistent curves. All four minima lie near $\mu \approx 1.5$.}
+\label{fig:mfpt_comparison}
+\end{figure}
+
+At $\lambda/r_v = 100$ (destructive Viswanathan), the MFPT minimum occurs near $\mu \approx 1.5$ with $\mathrm{MFPT}/\lambda \approx 1.6$, while at $\mu = 3.0$ the MFPT increases to $\mathrm{MFPT}/\lambda \approx 2.1$. The MFPT minimum is shifted toward more ballistic values compared to the throughput peak ($\mu^* \approx 1.7$), consistent with the expectation that first-detection favors longer straight flights that cross fresh territory quickly. The throughput metric, by contrast, averages over a long search trajectory and benefits from a balance between exploration and local scanning efficiency, producing a higher optimal~$\mu$.
+
+The shape of the MFPT curves can be understood as follows. For $\mu \to 1$ (ballistic), the searcher makes very long straight flights; the first target encounter depends on whether the flight direction intersects a detection corridor containing a target, which has probability $\sim 2r_v \ell / \lambda^2$ for a flight of length~$\ell$. Since almost all flights are long, missed flights waste substantial distance, and the MFPT is moderately high. As $\mu$ increases toward~$1.5$, the distribution of flight lengths broadens, producing some short flights that probe local neighborhoods and some long flights that explore distant regions; this mixture reduces the MFPT. For $\mu > 2$, flights become predominantly short and the searcher diffuses slowly, increasing the first-passage distance. The MFPT minimum near $\mu \approx 1.5$ reflects the optimal balance for first detection, distinct from the throughput optimum near $\mu \approx 1.7$--$2.0$.
+
+%-------------------------------------------------------------
+\section{Sensitivity to truncation parameters}
+\label{sec:sensitivity}
+
+All sensitivity experiments use the destructive Viswanathan
+strategy at $\lambda/r_v = 100$ with 50\,000 flights and
+120 runs.
+
+\subsection{Effect of $l_{\max}$}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.95\textwidth]{images/sensitivity_lmin_lmax_curves.pdf}
+\caption{Sensitivity of the efficiency curve $\lambda\eta(\mu)$ to truncation parameters (destructive Viswanathan, $\lambda/r_v = 100$). Left panel: effect of the upper truncation bound $l_{\max}/\lambda$, with curves colored from dark (small $l_{\max}/\lambda = 0.1$) to light (large $l_{\max}/\lambda = 10$). Restricting $l_{\max}$ suppresses long flights and shifts $\mu^*$ toward ballistic values. Right panel: effect of the lower truncation bound $l_{\min}/r_v$, with curves colored by $l_{\min}/r_v$ value. Increasing $l_{\min}$ removes short scanning flights and shifts $\mu^*$ upward. Shaded bands indicate $\pm 1\sigma$ per-run standard deviation.}
+\label{fig:sensitivity_curves}
+\end{figure}
+
+\begin{table}[htb]
+\centering
+\begin{tabular}{rcc|rcc}
+\toprule
+$l_{\max}/\lambda$ & $\mu^*$ & $\lambda\eta_{\max}$ &
+$l_{\min}/r_v$ & $\mu^*$ & $\lambda\eta_{\max}$ \\
+\midrule
+0.1  & 1.0 & 0.382 & 0.10 & 1.5 & 0.464 \\
+0.2  & 1.2 & 0.435 & 0.25 & 1.5 & 0.467 \\
+0.5  & 1.6 & 0.465 & 0.50 & 1.6 & 0.471 \\
+1.0  & 1.7 & 0.470 & 1.00 & 1.7 & 0.470 \\
+2.0  & 2.0 & 0.473 & 2.00 & 2.1 & 0.469 \\
+5.0  & 2.0 & 0.472 & 5.00 & 2.2 & 0.457 \\
+10.0 & 2.1 & 0.474 &      &     &       \\
+\bottomrule
+\end{tabular}
+\caption{Sensitivity of $\mu^*$ and $\lambda\eta_{\max}$ to
+         truncation.}
+\label{tab:sensitivity}
+\end{table}
+
+When $l_{\max}/\lambda < 0.5$, the truncation suppresses long
+flights and $\mu^*$ shifts toward ballistic ($\mu^* \to 1$).
+When $l_{\max}/\lambda \geq 1$, the truncation becomes
+negligible: $\mu^*$ stabilizes at $1.7$--$2.1$ and
+$\lambda\eta_{\max} \approx 0.47$.
+
+\subsection{Effect of $l_{\min}$}
+
+Increasing $l_{\min}/r_v$ above~1 removes short flights,
+weakening the scanning efficiency.  For $l_{\min}/r_v \leq 2$,
+$\mu^*$ remains near~$1.7$--$2.1$.  At $l_{\min}/r_v = 5$,
+$\mu^*$ shifts to~$2.2$ and efficiency drops to~$0.457$.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.95\textwidth]{images/sensitivity_summary.pdf}
+\caption{Summary of the truncation sensitivity analysis (destructive Viswanathan, $\lambda/r_v = 100$). Top row: $\mu^*$ (left) and $\lambda\eta_{\max}$ (right) as functions of $l_{\max}/\lambda$. The optimal exponent increases monotonically with $l_{\max}/\lambda$ and saturates near $\mu^* = 2$ for $l_{\max}/\lambda \geq 1$. Bottom row: $\mu^*$ (left) and $\lambda\eta_{\max}$ (right) as functions of $l_{\min}/r_v$. The optimal exponent is relatively insensitive to $l_{\min}$ for $l_{\min}/r_v \leq 2$ but shifts upward for larger values.}
+\label{fig:sensitivity_summary}
+\end{figure}
+
+%-------------------------------------------------------------
+\section{Convergence analysis}
+\label{sec:convergence}
+
+\subsection{Convergence in number of flights}
+
+We fix $R = 120$ runs at $\lambda/r_v = 100$
+(destructive Viswanathan) and vary the number of flights
+from~500 to~200\,000.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.95\textwidth]{images/convergence_flights.pdf}
+\caption{Convergence of $\mu^*$ (left) and $\lambda\eta_{\max}$ (right) with the number of flights per run (destructive Viswanathan, $\lambda/r_v = 100$, 120 runs). Red circles connected by lines show the dependence. The grey dashed line at $\mu = 2$ (left panel) marks the theoretical prediction. $\mu^*$ stabilizes for $N_{\mathrm{flights}} \geq 5000$, while $\lambda\eta_{\max}$ decreases monotonically as longer runs reveal the true long-run efficiency.}
+\label{fig:conv_flights}
+\end{figure}
+
+$\mu^*$ stabilizes at $1.7$--$2.0$ for
+$N_{\mathrm{flights}} \geq 5000$.
+$\lambda\eta_{\max}$ decreases monotonically from~$0.517$
+(500 flights) to~$0.463$ (200\,000 flights), indicating that
+short runs overestimate efficiency due to insufficient
+exploration.  The change between 50\,000 and 200\,000 flights
+is $< 1.5\%$, confirming convergence.
+
+\subsection{Convergence in runs (destructive)}
+
+We fix $N_{\mathrm{flights}} = 50\,000$ and vary
+$R \in \{5, 10, 20, 50, 100, 200, 400\}$.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.95\textwidth]{images/convergence_reps.pdf}
+\caption{Convergence of $\mu^*$ (left) and $\lambda\eta_{\max}$ (right) with the number of independent runs ($N_{\mathrm{flights}} = 50\,000$, $\lambda/r_v = 100$). Red upward triangles show the destructive Viswanathan strategy; green downward triangles show the non-destructive Viswanathan strategy. The destructive strategy converges rapidly ($\mu^*$ stable from $R = 5$), while the non-destructive strategy requires $R \geq 200$ for $\lambda\eta_{\max}$ to stabilize within~$1\%$.}
+\label{fig:conv_reps}
+\end{figure}
+
+For the destructive strategy, $\mu^*$ is stable at $1.7$--$1.9$
+from $R = 5$, and $\lambda\eta_{\max}$ converges within
+$0.5\%$ by $R = 50$.
+
+\subsection{Convergence in runs (non-destructive)}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.88\textwidth]{images/convergence_nd_curves.pdf}
+\caption{Full $\lambda\eta(\mu)$ curves for the non-destructive Viswanathan strategy at $\lambda/r_v = 100$ with different numbers of independent runs ($R = 100, 500, 1000, 2000$; colored from dark to light using the plasma colormap). Each curve shows the complete efficiency profile at a given~$R$. The peak position $\mu^*$ fluctuates between 2.0 and~2.7 across different $R$ values, illustrating the difficulty of precisely determining the optimum under trapping-induced noise. The peak \emph{value} $\lambda\eta_{\max}$, however, converges to within~$1\%$ by $R = 200$.}
+\label{fig:conv_nd}
+\end{figure}
+
+Non-destructive $\mu^*$ fluctuates between 2.0 and~2.7 even
+at $R = 2000$, reflecting irreducible noise from trapping outliers.
+The pooled estimator $\lambda\eta_{\max}$ converges within $1\%$
+by $R \approx 500$.
+
+%-------------------------------------------------------------
+\section{Comparison with analytical prediction}
+\label{sec:analytical_comparison}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.88\textwidth]{images/analytical_comparison.pdf}
+\caption{Comparison of the simulation efficiency curve $\lambda\eta(\mu)$ (red circles with solid line) with the Viswanathan analytical prediction $\eta \propto 1/(\langle l \rangle_{\mathrm{MF}} \cdot N)$ (black dashed line) at $\lambda/r_v = 100$ (destructive Viswanathan strategy). The analytical curve is normalized to the simulation data by a single least-squares scaling constant. The red shaded band shows $\pm 1\sigma$ per-run standard deviation. Both curves peak near $\mu \approx 1.7$--$2.0$ and show qualitatively similar shapes, though the analytical model underestimates the efficiency decline for $\mu > 2.5$.}
+\label{fig:analytical}
+\end{figure}
+
+The analytical curve $\eta \propto 1/(\langle l \rangle_{\mathrm{MF}} \cdot N)$ (Section~\ref{sec:analytical_theory}) is normalized to the simulation data by a single least-squares constant, so the comparison tests only the \emph{shape} of the $\mu$-dependence, not the absolute magnitude. The shape agreement is good across the full range $\mu \in [1,3]$. For $\mu < 2$, both curves decline as $\langle l \rangle_{\mathrm{MF}}$ grows with decreasing~$\mu$: the mean-field model correctly captures the cost of increasingly long flights in the ballistic regime. The peak positions agree to within $\Delta\mu \leq 0.3$, with both the simulation and the analytical model placing the maximum near $\mu \approx 1.7$--$2.0$. For $\mu > 2$, the encounter factor $N(\mu) = (\lambda/r_v)^{(\mu-1)/2}$ penalizes short-flight strategies through its exponential growth in~$\mu$, producing a decline that qualitatively matches the simulation. The model underestimates the decline for $\mu > 2.5$, where oversampling by very short flights exceeds the $N(\mu)$ correction; this discrepancy likely arises because the mean-field derivation assumes each flight explores an independent area, neglecting the strong spatial correlations in short-flight trajectories.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.95\textwidth]{images/analytical_multi_sparsity.pdf}
+\caption{Viswanathan analytical prediction $\eta \propto 1/(\langle l \rangle_{\mathrm{MF}} \cdot N)$ (black dashed line) compared with simulation data (red circles with solid line) at four sparsity levels: $\lambda/r_v = 20$ (top-left), $100$ (top-right), $500$ (bottom-left), and $2000$ (bottom-right). Each panel is independently normalized by a least-squares scaling constant. Red shaded bands show $\pm 1\sigma$ per-run standard deviation. The agreement improves substantially from $\lambda/r_v = 20$ (where multi-target encounters violate the single-encounter approximation) to $\lambda/r_v = 2000$ (where the analytical model closely matches the simulation).}
+\label{fig:analytical_multi}
+\end{figure}
+
+The agreement improves with increasing $\lambda/r_v$: at
+$\lambda/r_v = 2000$ the analytical curve closely matches the
+simulation, while at $\lambda/r_v = 20$ deviations appear for
+$\mu < 1.5$ where the single-encounter approximation breaks down
+(flights overshoot multiple targets).
